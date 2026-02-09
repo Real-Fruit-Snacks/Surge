@@ -97,7 +97,7 @@ jobs:
           prerelease: false
           generate_release_notes: true
           files: |
-            recall-${{ steps.tag_info.outputs.version }}.zip
+            surge-${{ steps.tag_info.outputs.version }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
