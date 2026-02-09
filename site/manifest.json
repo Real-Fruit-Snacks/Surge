@@ -1,0 +1,17 @@
+{
+  "name": "SURGE",
+  "short_name": "SURGE",
+  "description": "Searchable reference system for markdown notes",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0e14",
+  "theme_color": "#ffb454",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%230a0e14'/><text x='50%' y='50%' dominant-baseline='central' text-anchor='middle' font-size='40' font-family='monospace' fill='%23ffb454'>>_</text></svg>",
+      "sizes": "64x64",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

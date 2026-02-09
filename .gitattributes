@@ -1,0 +1,2 @@
+# Exclude notes from release source archives
+notes/ export-ignore

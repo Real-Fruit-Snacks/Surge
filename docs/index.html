@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Surge — Searchable Command Reference</title>
+  <meta name="description" content="Static web app that transforms markdown notes into a searchable, offline-first command reference. Fuzzy search, variable substitution, Catppuccin themes, and full offline support.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    /* =========================================================
+       SURGE LANDING PAGE
+       Catppuccin Mocha palette — dark terminal aesthetic
+       ========================================================= */
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --ctp-rosewater: #f5e0dc;
+      --ctp-flamingo: #f2cdcd;
+      --ctp-pink: #f5c2e7;
+      --ctp-mauve: #cba6f7;
+      --ctp-red: #f38ba8;
+      --ctp-maroon: #eba0ac;
+      --ctp-peach: #fab387;
+      --ctp-yellow: #f9e2af;
+      --ctp-green: #a6e3a1;
+      --ctp-teal: #94e2d5;
+      --ctp-sky: #89dceb;
+      --ctp-sapphire: #74c7ec;
+      --ctp-blue: #89b4fa;
+      --ctp-lavender: #b4befe;
+      --ctp-text: #cdd6f4;
+      --ctp-subtext1: #bac2de;
+      --ctp-subtext0: #a6adc8;
+      --ctp-overlay2: #9399b2;
+      --ctp-overlay1: #7f849c;
+      --ctp-overlay0: #6c7086;
+      --ctp-surface2: #585b70;
+      --ctp-surface1: #45475a;
+      --ctp-surface0: #313244;
+      --ctp-base: #1e1e2e;
+      --ctp-mantle: #181825;
+      --ctp-crust: #11111b;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: var(--ctp-surface1) var(--ctp-crust);
+    }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background-color: var(--ctp-crust);
+      color: var(--ctp-text);
+      line-height: 1.7;
+      font-size: 15px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ---- Dot-grid background pattern ---- */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(var(--ctp-surface0) 1px, transparent 1px);
+      background-size: 24px 24px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ---- CRT scanline overlay ---- */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ---- Layout ---- */
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    section {
+      margin-bottom: 96px;
+    }
+
+    a {
+      color: var(--ctp-blue);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    a:hover {
+      color: var(--ctp-sapphire);
+    }
+
+    /* ---- Section titles ---- */
+    .section-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ctp-overlay0);
+      border: 1px solid var(--ctp-surface1);
+      padding: 4px 12px;
+      border-radius: 2px;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: clamp(22px, 3vw, 30px);
+      font-weight: 700;
+      color: var(--ctp-text);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .section-desc {
+      color: var(--ctp-subtext0);
+      font-size: 14px;
+      max-width: 600px;
+      margin-bottom: 40px;
+    }
+
+    /* =========================================================
+       HERO
+       ========================================================= */
+    .hero {
+      padding: 80px 0 48px;
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .hero-terminal {
+      border: 1px solid var(--ctp-surface1);
+      border-radius: 8px;
+      background: var(--ctp-mantle);
+      max-width: 780px;
+      margin: 0 auto;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px var(--ctp-surface0),
+        0 24px 80px -12px rgba(0, 0, 0, 0.6),
+        0 0 120px -40px rgba(203, 166, 247, 0.08);
+    }
+
+    .hero-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--ctp-crust);
+      border-bottom: 1px solid var(--ctp-surface0);
+    }
+
+    .hero-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .hero-dot--red { background: var(--ctp-red); }
+    .hero-dot--yellow { background: var(--ctp-yellow); }
+    .hero-dot--green { background: var(--ctp-green); }
+
+    .hero-titlebar-text {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      color: var(--ctp-overlay0);
+      letter-spacing: 0.05em;
+    }
+
+    .hero-body {
+      padding: 48px 40px 56px;
+    }
+
+    .hero-prompt {
+      font-size: 13px;
+      color: var(--ctp-overlay0);
+      margin-bottom: 24px;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-prompt .prompt-symbol {
+      color: var(--ctp-green);
+    }
+
+    .hero-prompt .prompt-path {
+      color: var(--ctp-blue);
+    }
+
+    .hero-title {
+      font-size: clamp(42px, 7vw, 72px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 8px;
+      background: linear-gradient(
+        135deg,
+        var(--ctp-mauve) 0%,
+        var(--ctp-pink) 30%,
+        var(--ctp-red) 60%,
+        var(--ctp-peach) 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 40px rgba(203, 166, 247, 0.2));
+    }
+
+    .hero-cursor {
+      display: inline-block;
+      width: 3px;
+      height: 0.8em;
+      background: var(--ctp-mauve);
+      margin-left: 4px;
+      vertical-align: baseline;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .hero-tagline {
+      font-size: clamp(14px, 2vw, 17px);
+      color: var(--ctp-subtext0);
+      margin-bottom: 36px;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    .hero-tagline em {
+      color: var(--ctp-subtext1);
+      font-style: normal;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--ctp-mauve);
+      color: var(--ctp-crust);
+      border-color: var(--ctp-mauve);
+    }
+
+    .btn-primary:hover {
+      background: var(--ctp-pink);
+      border-color: var(--ctp-pink);
+      color: var(--ctp-crust);
+      box-shadow: 0 0 24px rgba(203, 166, 247, 0.25);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--ctp-subtext1);
+      border-color: var(--ctp-surface1);
+    }
+
+    .btn-ghost:hover {
+      color: var(--ctp-text);
+      border-color: var(--ctp-overlay0);
+      background: var(--ctp-surface0);
+    }
+
+    /* =========================================================
+       FEATURES GRID
+       ========================================================= */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .feature-card {
+      background: var(--ctp-mantle);
+      border: 1px solid var(--ctp-surface0);
+      border-radius: 6px;
+      padding: 28px 24px;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--ctp-blue), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--ctp-surface1);
+      background: var(--ctp-base);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.4);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      font-size: 24px;
+      margin-bottom: 16px;
+      display: block;
+      width: 44px;
+      height: 44px;
+      line-height: 44px;
+      text-align: center;
+      background: var(--ctp-surface0);
+      border-radius: 8px;
+      border: 1px solid var(--ctp-surface1);
+    }
+
+    .feature-card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ctp-text);
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 13px;
+      color: var(--ctp-subtext0);
+      line-height: 1.6;
+    }
+
+    /* ---- Unique accent colors per card ---- */
+    .feature-card:nth-child(1):hover { border-color: var(--ctp-blue); }
+    .feature-card:nth-child(1):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-blue), transparent); }
+
+    .feature-card:nth-child(2):hover { border-color: var(--ctp-green); }
+    .feature-card:nth-child(2):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-green), transparent); }
+
+    .feature-card:nth-child(3):hover { border-color: var(--ctp-mauve); }
+    .feature-card:nth-child(3):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-mauve), transparent); }
+
+    .feature-card:nth-child(4):hover { border-color: var(--ctp-peach); }
+    .feature-card:nth-child(4):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-peach), transparent); }
+
+    .feature-card:nth-child(5):hover { border-color: var(--ctp-teal); }
+    .feature-card:nth-child(5):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-teal), transparent); }
+
+    .feature-card:nth-child(6):hover { border-color: var(--ctp-yellow); }
+    .feature-card:nth-child(6):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-yellow), transparent); }
+
+    .feature-card:nth-child(7):hover { border-color: var(--ctp-red); }
+    .feature-card:nth-child(7):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-red), transparent); }
+
+    .feature-card:nth-child(8):hover { border-color: var(--ctp-flamingo); }
+    .feature-card:nth-child(8):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-flamingo), transparent); }
+
+    /* =========================================================
+       SCREENSHOT
+       ========================================================= */
+    .screenshot-section {
+      text-align: center;
+    }
+
+    .screenshot-frame {
+      border: 1px solid var(--ctp-surface1);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--ctp-mantle);
+      box-shadow:
+        0 0 0 1px var(--ctp-surface0),
+        0 32px 80px -16px rgba(0, 0, 0, 0.5),
+        0 0 160px -60px rgba(203, 166, 247, 0.06);
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .screenshot-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--ctp-crust);
+      border-bottom: 1px solid var(--ctp-surface0);
+    }
+
+    .screenshot-titlebar-text {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      color: var(--ctp-overlay0);
+    }
+
+    .screenshot-titlebar-text .url-text {
+      color: var(--ctp-green);
+    }
+
+    .screenshot-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .screenshot-caption {
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--ctp-overlay1);
+      font-style: italic;
+    }
+
+    /* =========================================================
+       ARCHITECTURE
+       ========================================================= */
+    .arch-terminal {
+      border: 1px solid var(--ctp-surface1);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--ctp-mantle);
+      box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.4);
+    }
+
+    .arch-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--ctp-crust);
+      border-bottom: 1px solid var(--ctp-surface0);
+    }
+
+    .arch-titlebar-text {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      color: var(--ctp-overlay0);
+    }
+
+    .arch-body {
+      padding: 32px;
+    }
+
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .arch-item {
+      padding: 20px;
+      border: 1px solid var(--ctp-surface0);
+      border-radius: 4px;
+      background: var(--ctp-base);
+    }
+
+    .arch-item-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .arch-item-marker {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ctp-crust);
+      background: var(--ctp-blue);
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .arch-item:nth-child(2) .arch-item-marker { background: var(--ctp-green); }
+    .arch-item:nth-child(3) .arch-item-marker { background: var(--ctp-peach); }
+    .arch-item:nth-child(4) .arch-item-marker { background: var(--ctp-red); }
+
+    .arch-item h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ctp-text);
+    }
+
+    .arch-item p {
+      font-size: 13px;
+      color: var(--ctp-subtext0);
+      line-height: 1.6;
+    }
+
+    .arch-item code {
+      font-size: 12px;
+      color: var(--ctp-mauve);
+      background: var(--ctp-surface0);
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    .arch-divider {
+      border: none;
+      border-top: 1px dashed var(--ctp-surface1);
+      margin: 28px 0;
+    }
+
+    .arch-stack {
+      font-size: 13px;
+      color: var(--ctp-subtext0);
+      text-align: center;
+    }
+
+    .arch-stack span {
+      display: inline-block;
+      padding: 4px 14px;
+      border: 1px solid var(--ctp-surface1);
+      border-radius: 3px;
+      margin: 4px;
+      background: var(--ctp-base);
+      color: var(--ctp-subtext1);
+      font-size: 12px;
+    }
+
+    /* =========================================================
+       GETTING STARTED
+       ========================================================= */
+    .start-row {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+    }
+
+    .start-terminal {
+      border: 1px solid var(--ctp-surface1);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--ctp-mantle);
+      box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.4);
+      flex: 1;
+      min-width: 0;
+    }
+
+    .start-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--ctp-crust);
+      border-bottom: 1px solid var(--ctp-surface0);
+    }
+
+    .start-titlebar-text {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      color: var(--ctp-overlay0);
+    }
+
+    .start-body {
+      padding: 28px 32px;
+    }
+
+    .start-line {
+      margin-bottom: 4px;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .start-line .prompt {
+      color: var(--ctp-green);
+      user-select: none;
+    }
+
+    .start-line .cmd {
+      color: var(--ctp-text);
+    }
+
+    .start-line .comment {
+      color: var(--ctp-overlay0);
+    }
+
+    .start-line .flag {
+      color: var(--ctp-peach);
+    }
+
+    .start-line .arg {
+      color: var(--ctp-yellow);
+    }
+
+    .start-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .start-info p {
+      font-size: 14px;
+      color: var(--ctp-subtext0);
+      margin-bottom: 12px;
+      line-height: 1.7;
+    }
+
+    .start-info code {
+      font-size: 13px;
+      color: var(--ctp-peach);
+      background: var(--ctp-surface0);
+      padding: 2px 8px;
+      border-radius: 3px;
+      border: 1px solid var(--ctp-surface1);
+    }
+
+    /* =========================================================
+       FOOTER
+       ========================================================= */
+    .site-footer {
+      border-top: 1px solid var(--ctp-surface0);
+      padding: 48px 0;
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    .footer-tagline {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ctp-subtext1);
+      margin-bottom: 24px;
+      letter-spacing: 0.02em;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--ctp-overlay1);
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--ctp-blue);
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--ctp-overlay0);
+    }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+    @media (max-width: 900px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .arch-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-body {
+        padding: 36px 24px 44px;
+      }
+      .start-row {
+        flex-direction: column;
+        gap: 24px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        font-size: 14px;
+      }
+      .page-wrap {
+        padding: 0 16px;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      section {
+        margin-bottom: 64px;
+      }
+      .hero {
+        padding: 48px 0 32px;
+      }
+      .hero-body {
+        padding: 28px 20px 36px;
+      }
+      .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      .btn {
+        width: 100%;
+        max-width: 260px;
+        justify-content: center;
+      }
+      .arch-body {
+        padding: 20px;
+      }
+      .start-body {
+        padding: 20px;
+      }
+      .start-line {
+        font-size: 12px;
+      }
+      .feature-card {
+        padding: 22px 20px;
+      }
+    }
+
+    /* ---- Selection highlight ---- */
+    ::selection {
+      background: rgba(203, 166, 247, 0.25);
+      color: var(--ctp-text);
+    }
+
+    /* ---- Focus styles for accessibility ---- */
+    a:focus-visible,
+    .btn:focus-visible {
+      outline: 2px solid var(--ctp-mauve);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="top">
+    <div class="hero-terminal">
+      <div class="hero-titlebar">
+        <span class="hero-dot hero-dot--red"></span>
+        <span class="hero-dot hero-dot--yellow"></span>
+        <span class="hero-dot hero-dot--green"></span>
+        <span class="hero-titlebar-text">surge -- command reference</span>
+      </div>
+      <div class="hero-body">
+        <h1 class="hero-title">Surge<span class="hero-cursor" aria-hidden="true"></span></h1>
+        <p class="hero-tagline">
+          Searchable <em>offline-first</em> command reference<br>
+          for pentesters and sysadmins
+        </p>
+        <div class="hero-buttons">
+          <a href="#getting-started" class="btn btn-primary">Get Started</a>
+          <a href="https://github.com/Real-Fruit-Snacks/Surge" class="btn btn-ghost">View on GitHub</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section id="features">
+    <span class="section-label">// capabilities</span>
+    <h2 class="section-title">Your commands. Instantly searchable.</h2>
+    <p class="section-desc">
+      A lightweight reference tool that turns your markdown notes into a fast, searchable, offline-first command library with variable substitution.
+    </p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">&#9906;</span>
+        <h3>Fuzzy Search</h3>
+        <p>Real-time search across titles, categories, tags, and commands powered by Fuse.js. Results update as you type.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">$x</span>
+        <h3>Variable System</h3>
+        <p><code style="font-size:12px;color:var(--ctp-mauve);background:var(--ctp-surface0);padding:1px 5px;border-radius:3px;">&lt;TargetIP&gt;</code> syntax in code blocks. Define variables per workspace, and they substitute automatically when you copy.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">&#9635;</span>
+        <h3>4 Catppuccin Themes</h3>
+        <p>Mocha, Macchiato, Frappe, and Latte. Click the title to cycle through them. Your preference is saved in localStorage.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">&#9889;</span>
+        <h3>Offline Support</h3>
+        <p>Full functionality after first visit. Service worker caches everything locally. No CDN, no external dependencies.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">&#9998;</span>
+        <h3>Obsidian Compatible</h3>
+        <p>Standard markdown with YAML frontmatter, inline tags, and callout syntax. Edit notes in Obsidian, search them in Surge.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">&#9000;</span>
+        <h3>Keyboard Driven</h3>
+        <p>Arrow keys to navigate, Enter to expand, c to copy, w to wrap, v for variables, Esc to clear. Built for speed.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">&#9112;</span>
+        <h3>One-Click Copy</h3>
+        <p>Copy individual commands or entire procedures. Variables are replaced with your current workspace values automatically.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">&#9783;</span>
+        <h3>Smart Filtering</h3>
+        <p>Tag-based visibility toggles defined in config.js. Show or hide procedure categories. Filter state persists across sessions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCREENSHOT ============ -->
+  <section class="screenshot-section" id="screenshot">
+    <span class="section-label">// in action</span>
+    <h2 class="section-title">Search. Expand. Copy. Done.</h2>
+    <p class="section-desc" style="margin-left:auto;margin-right:auto;">
+      Type to search. Arrow keys to navigate. Enter to expand. c to copy with variables substituted.
+    </p>
+
+    <div class="screenshot-frame">
+      <div class="screenshot-titlebar">
+        <span class="hero-dot hero-dot--red"></span>
+        <span class="hero-dot hero-dot--yellow"></span>
+        <span class="hero-dot hero-dot--green"></span>
+        <span class="screenshot-titlebar-text"><span class="url-text">http://localhost:8080</span> -- surge</span>
+      </div>
+      <img
+        src="Screenshot.png"
+        alt="Surge command reference interface showing fuzzy search results, expanded procedures with syntax-highlighted code blocks, and variable substitution panel"
+        loading="lazy"
+        width="1920"
+        height="1080"
+      >
+    </div>
+    <p class="screenshot-caption">Fuzzy search results with variable substitution, syntax highlighting, and keyboard navigation.</p>
+  </section>
+
+  <!-- ============ ARCHITECTURE ============ -->
+  <section id="architecture">
+    <span class="section-label">// architecture</span>
+    <h2 class="section-title">No build step. No framework. Just files.</h2>
+    <p class="section-desc">
+      A Python build script parses your markdown notes into a JSON index. A static HTML page searches it with Fuse.js. That's it.
+    </p>
+
+    <div class="arch-terminal">
+      <div class="arch-titlebar">
+        <span class="hero-dot hero-dot--red"></span>
+        <span class="hero-dot hero-dot--yellow"></span>
+        <span class="hero-dot hero-dot--green"></span>
+        <span class="arch-titlebar-text">system architecture</span>
+      </div>
+      <div class="arch-body">
+        <div class="arch-grid">
+          <div class="arch-item">
+            <div class="arch-item-header">
+              <span class="arch-item-marker">01</span>
+              <h3>Markdown Parser</h3>
+            </div>
+            <p>
+              Python <code>build.py</code> recursively scans <code>/notes/</code> subdirectories, extracts procedures from <code>##</code> headers, steps from <code>###</code> headers, code blocks, tags, and variables into structured JSON.
+            </p>
+          </div>
+
+          <div class="arch-item">
+            <div class="arch-item-header">
+              <span class="arch-item-marker">02</span>
+              <h3>Static Frontend</h3>
+            </div>
+            <p>
+              Single <code>index.html</code> with vanilla JavaScript. No framework, no bundler, no transpilation. Fuse.js for search, Highlight.js for syntax coloring.
+            </p>
+          </div>
+
+          <div class="arch-item">
+            <div class="arch-item-header">
+              <span class="arch-item-marker">03</span>
+              <h3>Variable Engine</h3>
+            </div>
+            <p>
+              Detects <code>&lt;variable&gt;</code> patterns in code blocks. Workspace system saves variable sets in localStorage. Values substitute on copy -- never modifies the source.
+            </p>
+          </div>
+
+          <div class="arch-item">
+            <div class="arch-item-header">
+              <span class="arch-item-marker">04</span>
+              <h3>Offline First</h3>
+            </div>
+            <p>
+              Service worker caches all assets on first visit. Works fully offline. Zero CDN dependencies. Everything ships in the <code>site/</code> folder.
+            </p>
+          </div>
+        </div>
+
+        <hr class="arch-divider">
+
+        <div class="arch-stack">
+          <span>Python</span>
+          <span>Fuse.js</span>
+          <span>Highlight.js</span>
+          <span>Service Worker</span>
+          <span>Catppuccin</span>
+          <span>Vanilla JS</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GETTING STARTED ============ -->
+  <section id="getting-started">
+    <span class="section-label">// quickstart</span>
+    <h2 class="section-title">Running in 30 seconds</h2>
+    <p class="section-desc">
+      Clone, build, serve. No Docker, no npm, no configuration files.
+    </p>
+
+    <div class="start-row">
+      <div class="start-terminal">
+        <div class="start-titlebar">
+          <span class="hero-dot hero-dot--red"></span>
+          <span class="hero-dot hero-dot--yellow"></span>
+          <span class="hero-dot hero-dot--green"></span>
+          <span class="start-titlebar-text">bash</span>
+        </div>
+        <div class="start-body">
+          <div class="start-line">
+            <span class="comment"># Clone the repository</span>
+          </div>
+          <div class="start-line">
+            <span class="prompt">$</span> <span class="cmd">git clone</span> <span class="arg">https://github.com/Real-Fruit-Snacks/Surge.git</span>
+          </div>
+          <div class="start-line" style="margin-bottom:16px;">
+            <span class="prompt">$</span> <span class="cmd">cd</span> <span class="arg">surge</span>
+          </div>
+          <div class="start-line">
+            <span class="comment"># Build the search index</span>
+          </div>
+          <div class="start-line" style="margin-bottom:16px;">
+            <span class="prompt">$</span> <span class="cmd">python3</span> <span class="arg">build.py</span>
+          </div>
+          <div class="start-line">
+            <span class="comment"># Start local server</span>
+          </div>
+          <div class="start-line" style="margin-bottom:16px;">
+            <span class="prompt">$</span> <span class="cmd">python3</span> <span class="flag">-m</span> <span class="cmd">http.server</span> <span class="arg">8080</span> <span class="flag">--directory</span> <span class="arg">site</span>
+          </div>
+          <div class="start-line">
+            <span class="comment"># Or use any static server:</span>
+          </div>
+          <div class="start-line" style="margin-bottom:0;">
+            <span class="prompt">$</span> <span class="cmd">npx http-server</span> <span class="arg">site</span> <span class="flag">-p</span> <span class="arg">8080</span> <span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;# Node.js</span>
+          </div>
+          <div class="start-line" style="margin-bottom:0;">
+            <span class="prompt">$</span> <span class="cmd">php</span> <span class="flag">-S</span> <span class="arg">localhost:8080</span> <span class="flag">-t</span> <span class="arg">site</span> <span class="comment">&nbsp;&nbsp;# PHP</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="start-info">
+      <p>
+        Open <code>http://localhost:8080</code> in your browser. Your markdown notes from <code>/notes/</code> are now searchable. Press <code>v</code> to open the variable panel, define your targets, and start copying commands with values pre-filled.
+      </p>
+      <p>
+        Add your own notes to <code>/notes/&lt;category&gt;/</code> using standard markdown with <code>##</code> headers for procedures and <code>###</code> headers for steps. Run <code>build.py</code> again to rebuild the index.
+      </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <p class="footer-tagline">Built for the command-line warriors.</p>
+    <nav class="footer-links" aria-label="Footer links">
+      <a href="https://github.com/Real-Fruit-Snacks/Surge">GitHub</a>
+      <a href="https://github.com/Real-Fruit-Snacks/Surge/blob/main/LICENSE">License (MIT)</a>
+      <a href="https://github.com/Real-Fruit-Snacks/Surge/issues">Report Issue</a>
+    </nav>
+    <p class="footer-copy">Surge -- searchable command reference</p>
+  </footer>
+
+</div>
+
+</body>
+</html>
