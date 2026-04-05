@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <defs>
+    <linearGradient id="sp-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#11111b"/>
+      <stop offset="50%" style="stop-color:#1e1e2e"/>
+      <stop offset="100%" style="stop-color:#181825"/>
+    </linearGradient>
+    <linearGradient id="sp-arc" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" style="stop-color:#cba6f7"/>
+      <stop offset="100%" style="stop-color:#f5c2e7"/>
+    </linearGradient>
+    <linearGradient id="sp-title" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#cba6f7"/>
+      <stop offset="100%" style="stop-color:#f5c2e7"/>
+    </linearGradient>
+    <linearGradient id="sp-line" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#cba6f7;stop-opacity:0"/>
+      <stop offset="20%" style="stop-color:#cba6f7"/>
+      <stop offset="80%" style="stop-color:#f5c2e7"/>
+      <stop offset="100%" style="stop-color:#f5c2e7;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="640" fill="url(#sp-bg)"/>
+
+  <!-- Expanding Wave Front — large, left of center -->
+  <g transform="translate(280, 300)">
+    <!-- Source point -->
+    <circle cx="0" cy="0" r="6" fill="#cba6f7"/>
+
+    <!-- Arc 1 -->
+    <path d="M 35,-60 A 70,70 0 0,1 35,60" fill="none" stroke="url(#sp-arc)" stroke-width="3.5" stroke-linecap="round" opacity="0.8"/>
+
+    <!-- Arc 2 -->
+    <path d="M 65,-95 A 115,115 0 0,1 65,95" fill="none" stroke="url(#sp-arc)" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+
+    <!-- Arc 3 -->
+    <path d="M 100,-125 A 160,160 0 0,1 100,125" fill="none" stroke="url(#sp-arc)" stroke-width="2.5" stroke-linecap="round" opacity="0.3"/>
+
+    <!-- Result dots -->
+    <circle cx="120" cy="-40" r="2.5" fill="#f5c2e7" opacity="0.9"/>
+    <circle cx="135" cy="10" r="2.5" fill="#f5c2e7" opacity="0.7"/>
+    <circle cx="128" cy="50" r="2.5" fill="#f5c2e7" opacity="0.8"/>
+    <circle cx="148" cy="-20" r="2.5" fill="#f5c2e7" opacity="0.6"/>
+    <circle cx="145" cy="30" r="2.5" fill="#f5c2e7" opacity="0.5"/>
+    <circle cx="160" cy="0" r="2.5" fill="#f5c2e7" opacity="0.4"/>
+    <circle cx="140" cy="-65" r="2.5" fill="#f5c2e7" opacity="0.45"/>
+    <circle cx="155" cy="60" r="2.5" fill="#f5c2e7" opacity="0.4"/>
+  </g>
+
+  <!-- Title -->
+  <text x="720" y="280" font-family="'SF Mono','Fira Code','JetBrains Mono','Cascadia Code',Consolas,monospace" font-size="96" font-weight="bold" fill="url(#sp-title)" text-anchor="middle" letter-spacing="12">SURGE</text>
+
+  <!-- Accent line -->
+  <rect x="520" y="305" width="400" height="2.5" rx="1" fill="url(#sp-line)"/>
+
+  <!-- Subtitle -->
+  <text x="720" y="350" font-family="'SF Mono','Fira Code','JetBrains Mono','Cascadia Code',Consolas,monospace" font-size="18" fill="#a6adc8" text-anchor="middle" letter-spacing="5">SEARCHABLE COMMAND REFERENCE</text>
+
+  <!-- Tagline -->
+  <text x="720" y="395" font-family="'SF Mono','Fira Code','JetBrains Mono','Cascadia Code',Consolas,monospace" font-size="14" fill="#6c7086" text-anchor="middle" letter-spacing="4">JS  ·  OFFLINE  ·  FUZZY SEARCH  ·  CATPPUCCIN</text>
+</svg>

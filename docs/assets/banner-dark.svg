@@ -30,16 +30,16 @@
     <!-- Source point -->
     <circle cx="0" cy="0" r="4" fill="#cba6f7"/>
 
-    <!-- Arc 1 — nearest, strongest -->
+    <!-- Arc 1 -->
     <path d="M 22,-38 A 44,44 0 0,1 22,38" fill="none" stroke="url(#arc-grad)" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
 
-    <!-- Arc 2 — middle -->
+    <!-- Arc 2 -->
     <path d="M 42,-58 A 72,72 0 0,1 42,58" fill="none" stroke="url(#arc-grad)" stroke-width="2.2" stroke-linecap="round" opacity="0.5"/>
 
-    <!-- Arc 3 — farthest, faintest -->
+    <!-- Arc 3 -->
     <path d="M 62,-76 A 98,98 0 0,1 62,76" fill="none" stroke="url(#arc-grad)" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
 
-    <!-- Result dots scattered in the wave expansion zone -->
+    <!-- Result dots -->
     <circle cx="75" cy="-25" r="1.5" fill="#f5c2e7" opacity="0.9"/>
     <circle cx="85" cy="5" r="1.5" fill="#f5c2e7" opacity="0.7"/>
     <circle cx="80" cy="30" r="1.5" fill="#f5c2e7" opacity="0.8"/>

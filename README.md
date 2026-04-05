@@ -1,15 +1,21 @@
 <div align="center">
 
-<img src="docs/banner.svg" alt="Surge" width="800">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/banner-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/assets/banner-light.svg">
+  <img src="docs/assets/banner-dark.svg" alt="Surge" width="800">
+</picture>
 
-Surge is a static web app that transforms markdown notes into a searchable, offline-first command reference — built for pentesters, sysadmins, and anyone who keeps technical runbooks.
+Static web app that transforms markdown notes into a searchable, offline-first command reference — fuzzy search, variable substitution, and Catppuccin themes.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-cba6f7.svg?style=flat-square)](LICENSE)
-[![Python 3.7+](https://img.shields.io/badge/python-3.7+-f38ba8.svg?style=flat-square)](https://www.python.org/)
-[![Zero Dependencies](https://img.shields.io/badge/dependencies-0-a6e3a1.svg?style=flat-square)](/)
-
+[![JavaScript](https://img.shields.io/badge/javascript-ES6+-f5c2e7.svg?style=flat-square)](#tech-stack)
+[![Offline First](https://img.shields.io/badge/offline-first-cba6f7.svg?style=flat-square)](#features)
+[![Catppuccin](https://img.shields.io/badge/theme-catppuccin-f5c2e7.svg?style=flat-square)](https://github.com/catppuccin)
 
 </div>
+
+---
 
 ## Table of Contents
 
@@ -21,6 +27,7 @@ Surge is a static web app that transforms markdown notes into a searchable, offl
 - [Configuration](#configuration)
 - [Reference Format](#reference-format)
 - [Contributing](#contributing)
+- [License](#license)
 
 ---
 
@@ -32,30 +39,30 @@ Surge is a static web app that transforms markdown notes into a searchable, offl
 
 ### Instant Fuzzy Search
 
-Search across titles, categories, tags, notes, and commands with real-time results powered by Fuse.js
+Search across titles, categories, tags, notes, and commands with real-time results powered by Fuse.js.
 
 </td>
 <td width="50%">
 
 ### Variable System
 
-Define `<variables>` in commands. Workspace support lets you save different variable sets per environment
+Define `<variables>` in commands. Workspace support lets you save different variable sets per environment.
 
 </td>
 </tr>
 <tr>
 <td width="50%">
 
-### 4 Catppuccin Themes
+### Four Catppuccin Themes
 
-Mocha (default), Macchiato, Frappe, and Latte. Click the title to cycle. Preference saved in localStorage
+Mocha (default), Macchiato, Frappe, and Latte. Click the title to cycle. Preference saved in localStorage.
 
 </td>
 <td width="50%">
 
 ### Offline Support
 
-Full functionality without internet after first visit via service worker. All assets bundled locally
+Full functionality without internet after first visit via service worker. All assets bundled locally.
 
 </td>
 </tr>
@@ -64,14 +71,14 @@ Full functionality without internet after first visit via service worker. All as
 
 ### Obsidian Compatible
 
-Standard markdown with YAML frontmatter, inline tags, and callout syntax. Edit in Obsidian, view in Surge
+Standard markdown with YAML frontmatter, inline tags, and callout syntax. Edit in Obsidian, view in Surge.
 
 </td>
 <td width="50%">
 
 ### Keyboard Driven
 
-Full keyboard navigation — arrow keys, Enter to expand, c to copy, v for variables, w for wrap, Esc to clear
+Full keyboard navigation with arrow keys, Enter to expand, `c` to copy, `v` for variables, `w` for wrap, Esc to clear.
 
 </td>
 </tr>
@@ -80,14 +87,14 @@ Full keyboard navigation — arrow keys, Enter to expand, c to copy, v for varia
 
 ### One-Click Copy
 
-Copy individual commands or entire procedures. Variables are automatically substituted with your current values
+Copy individual commands or entire procedures. Variables are automatically substituted with your current values.
 
 </td>
 <td width="50%">
 
 ### Smart Filtering
 
-Toggle visibility of procedures by custom tags. Filter state persists across sessions
+Toggle visibility of procedures by custom tags. Filter state persists across sessions.
 
 </td>
 </tr>
@@ -171,13 +178,13 @@ surge/
 | Variable substitution | `<var>` syntax with workspace support for different environments |
 | Workspaces | Save variable sets per environment (Lab, Production, etc.) |
 | Copy with substitution | One-click copy replaces variables with current values |
-| 4 Catppuccin themes | Mocha, Macchiato, Frappe, Latte — click title to cycle |
+| Four Catppuccin themes | Mocha, Macchiato, Frappe, Latte — click title to cycle |
 | Offline support | Service worker caches everything for full offline use |
 | Keyboard navigation | Arrow keys, Enter, c/w/v/Esc shortcuts for power users |
 | Tag filtering | Toggle procedure visibility by custom tags |
 | Obsidian compatible | YAML frontmatter, inline tags, callout syntax |
 | Syntax highlighting | Bash, PowerShell, Python, and more via Highlight.js |
-| Code wrapping | Toggle line wrapping on code blocks with w key |
+| Code wrapping | Toggle line wrapping on code blocks with `w` key |
 | History panel | Track recently viewed procedures |
 | Analyzer panel | Character analysis and MD5 hashing |
 | Zero dependencies | No CDN, no runtime deps — everything bundled |
@@ -255,28 +262,24 @@ This creates a searchable procedure with two steps. The `[optional]` flag exclud
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Add markdown notes to `/notes/<category>/`
-4. Test locally: `python3 build.py && python3 -m http.server 8080 --directory site`
-5. Commit: `git commit -m 'Add amazing feature'`
-6. Push: `git push origin feature/amazing-feature`
-7. Open a Pull Request
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on adding references, submitting code changes, and the pull request process.
 
-**Code style:**
+## License
 
-- Python: Follow PEP 8
-- JavaScript: ES6+, consistent indentation
-- Markdown: Follow existing patterns
+[MIT](LICENSE)
 
 ---
 
 <div align="center">
 
-**Built for the command-line warriors.**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/assets/logo-light.svg">
+  <img src="docs/assets/logo-dark.svg" alt="Surge" width="48">
+</picture>
 
-[GitHub](https://github.com/Real-Fruit-Snacks/Surge) | [License (MIT)](https://github.com/Real-Fruit-Snacks/Surge/blob/main/LICENSE) | [Report Issue](https://github.com/Real-Fruit-Snacks/Surge/issues)
+**Surge** — searchable command reference
 
-*Surge — searchable command reference*
+[Report Issue](https://github.com/Real-Fruit-Snacks/Surge/issues) · [Request Feature](https://github.com/Real-Fruit-Snacks/Surge/issues)
 
 </div>
