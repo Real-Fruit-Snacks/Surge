@@ -1,1083 +1,670 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Surge — Searchable Command Reference</title>
-  <meta name="description" content="Static web app that transforms markdown notes into a searchable, offline-first command reference. Fuzzy search, variable substitution, Catppuccin themes, and full offline support.">
-  <meta property="og:title" content="Surge — Searchable Command Reference">
-  <meta property="og:description" content="Static web app that transforms markdown notes into a searchable, offline-first command reference — fuzzy search, variable substitution, Catppuccin themes.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://real-fruit-snacks.github.io/Surge/">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='6' cy='16' r='2.5' fill='%23cba6f7'/%3E%3Cpath d='M12,6 A12,12 0 0,1 12,26' fill='none' stroke='%23cba6f7' stroke-width='2' stroke-linecap='round' opacity='0.8'/%3E%3Cpath d='M18,3 A16,16 0 0,1 18,29' fill='none' stroke='%23f5c2e7' stroke-width='1.5' stroke-linecap='round' opacity='0.5'/%3E%3Cpath d='M24,1 A20,20 0 0,1 24,31' fill='none' stroke='%23f5c2e7' stroke-width='1.2' stroke-linecap='round' opacity='0.3'/%3E%3C/svg%3E">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <style>
-    /* =========================================================
-       SURGE LANDING PAGE
-       Catppuccin Mocha palette — dark terminal aesthetic
-       Accent: mauve #cba6f7 -> pink #f5c2e7
-       ========================================================= */
-
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    :root {
-      --ctp-rosewater: #f5e0dc;
-      --ctp-flamingo: #f2cdcd;
-      --ctp-pink: #f5c2e7;
-      --ctp-mauve: #cba6f7;
-      --ctp-red: #f38ba8;
-      --ctp-maroon: #eba0ac;
-      --ctp-peach: #fab387;
-      --ctp-yellow: #f9e2af;
-      --ctp-green: #a6e3a1;
-      --ctp-teal: #94e2d5;
-      --ctp-sky: #89dceb;
-      --ctp-sapphire: #74c7ec;
-      --ctp-blue: #89b4fa;
-      --ctp-lavender: #b4befe;
-      --ctp-text: #cdd6f4;
-      --ctp-subtext1: #bac2de;
-      --ctp-subtext0: #a6adc8;
-      --ctp-overlay2: #9399b2;
-      --ctp-overlay1: #7f849c;
-      --ctp-overlay0: #6c7086;
-      --ctp-surface2: #585b70;
-      --ctp-surface1: #45475a;
-      --ctp-surface0: #313244;
-      --ctp-base: #1e1e2e;
-      --ctp-mantle: #181825;
-      --ctp-crust: #11111b;
-    }
-
-    html {
-      scroll-behavior: smooth;
-      scrollbar-width: thin;
-      scrollbar-color: var(--ctp-surface1) var(--ctp-crust);
-    }
-
-    body {
-      font-family: 'JetBrains Mono', monospace;
-      background-color: var(--ctp-crust);
-      color: var(--ctp-text);
-      line-height: 1.7;
-      font-size: 15px;
-      overflow-x: hidden;
-      position: relative;
-    }
-
-    /* ---- Dot-grid background pattern ---- */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: radial-gradient(var(--ctp-surface0) 1px, transparent 1px);
-      background-size: 24px 24px;
-      opacity: 0.3;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ---- CRT scanline overlay ---- */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.03) 2px,
-        rgba(0, 0, 0, 0.03) 4px
-      );
-      pointer-events: none;
-      z-index: 9999;
-    }
-
-    /* ---- Layout ---- */
-    .page-wrap {
-      position: relative;
-      z-index: 1;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    section {
-      margin-bottom: 96px;
-    }
-
-    a {
-      color: var(--ctp-mauve);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    a:hover {
-      color: var(--ctp-pink);
-    }
-
-    /* ---- Section titles ---- */
-    .section-label {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--ctp-overlay0);
-      border: 1px solid var(--ctp-surface1);
-      padding: 4px 12px;
-      border-radius: 2px;
-      margin-bottom: 20px;
-    }
-
-    .section-title {
-      font-size: clamp(22px, 3vw, 30px);
-      font-weight: 700;
-      color: var(--ctp-text);
-      margin-bottom: 12px;
-      line-height: 1.3;
-    }
-
-    .section-desc {
-      color: var(--ctp-subtext0);
-      font-size: 14px;
-      max-width: 600px;
-      margin-bottom: 40px;
-    }
-
-    /* =========================================================
-       HERO
-       ========================================================= */
-    .hero {
-      padding: 80px 0 48px;
-      text-align: center;
-      margin-bottom: 64px;
-    }
-
-    .hero-terminal {
-      border: 1px solid var(--ctp-surface1);
-      border-radius: 8px;
-      background: var(--ctp-mantle);
-      max-width: 780px;
-      margin: 0 auto;
-      overflow: hidden;
-      box-shadow:
-        0 0 0 1px var(--ctp-surface0),
-        0 24px 80px -12px rgba(0, 0, 0, 0.6),
-        0 0 120px -40px rgba(203, 166, 247, 0.08);
-    }
-
-    .hero-titlebar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 16px;
-      background: var(--ctp-crust);
-      border-bottom: 1px solid var(--ctp-surface0);
-    }
-
-    .hero-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-    }
-
-    .hero-dot--red { background: var(--ctp-red); }
-    .hero-dot--yellow { background: var(--ctp-yellow); }
-    .hero-dot--green { background: var(--ctp-green); }
-
-    .hero-titlebar-text {
-      flex: 1;
-      text-align: center;
-      font-size: 12px;
-      color: var(--ctp-overlay0);
-      letter-spacing: 0.05em;
-    }
-
-    .hero-body {
-      padding: 48px 40px 56px;
-    }
-
-    .hero-logomark {
-      display: block;
-      margin: 0 auto 28px;
-    }
-
-    .hero-prompt {
-      font-size: 13px;
-      color: var(--ctp-overlay0);
-      margin-bottom: 24px;
-      letter-spacing: 0.02em;
-    }
-
-    .hero-prompt .prompt-symbol {
-      color: var(--ctp-green);
-    }
-
-    .hero-prompt .prompt-path {
-      color: var(--ctp-mauve);
-    }
-
-    .hero-title {
-      font-size: clamp(42px, 7vw, 72px);
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      line-height: 1.05;
-      margin-bottom: 8px;
-      background: linear-gradient(
-        135deg,
-        var(--ctp-mauve) 0%,
-        var(--ctp-pink) 100%
-      );
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      filter: drop-shadow(0 0 40px rgba(203, 166, 247, 0.2));
-    }
-
-    .hero-cursor {
-      display: inline-block;
-      width: 3px;
-      height: 0.8em;
-      background: var(--ctp-mauve);
-      margin-left: 4px;
-      vertical-align: baseline;
-      animation: blink 1s step-end infinite;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-    .hero-tagline {
-      font-size: clamp(14px, 2vw, 17px);
-      color: var(--ctp-subtext0);
-      margin-bottom: 36px;
-      font-weight: 400;
-      line-height: 1.6;
-    }
-
-    .hero-tagline em {
-      color: var(--ctp-subtext1);
-      font-style: normal;
-    }
-
-    .hero-buttons {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 28px;
-      border-radius: 4px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 14px;
-      font-weight: 500;
-      letter-spacing: 0.02em;
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
-    }
-
-    .btn-primary {
-      background: var(--ctp-mauve);
-      color: var(--ctp-crust);
-      border-color: var(--ctp-mauve);
-    }
-
-    .btn-primary:hover {
-      background: var(--ctp-pink);
-      border-color: var(--ctp-pink);
-      color: var(--ctp-crust);
-      box-shadow: 0 0 24px rgba(203, 166, 247, 0.25);
-    }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--ctp-subtext1);
-      border-color: var(--ctp-surface1);
-    }
-
-    .btn-ghost:hover {
-      color: var(--ctp-text);
-      border-color: var(--ctp-overlay0);
-      background: var(--ctp-surface0);
-    }
-
-    /* =========================================================
-       FEATURES GRID
-       ========================================================= */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-
-    .feature-card {
-      background: var(--ctp-mantle);
-      border: 1px solid var(--ctp-surface0);
-      border-radius: 6px;
-      padding: 28px 24px;
-      transition: all 0.25s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .feature-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--ctp-mauve), transparent);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .feature-card:hover {
-      border-color: var(--ctp-surface1);
-      background: var(--ctp-base);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.4);
-    }
-
-    .feature-card:hover::before {
-      opacity: 1;
-    }
-
-    .feature-icon {
-      font-size: 24px;
-      margin-bottom: 16px;
-      display: block;
-      width: 44px;
-      height: 44px;
-      line-height: 44px;
-      text-align: center;
-      background: var(--ctp-surface0);
-      border-radius: 8px;
-      border: 1px solid var(--ctp-surface1);
-    }
-
-    .feature-card h3 {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--ctp-text);
-      margin-bottom: 8px;
-    }
-
-    .feature-card p {
-      font-size: 13px;
-      color: var(--ctp-subtext0);
-      line-height: 1.6;
-    }
-
-    /* ---- Accent colors per card: mauve/pink palette ---- */
-    .feature-card:nth-child(1):hover { border-color: var(--ctp-mauve); }
-    .feature-card:nth-child(1):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-mauve), transparent); }
-
-    .feature-card:nth-child(2):hover { border-color: var(--ctp-pink); }
-    .feature-card:nth-child(2):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-pink), transparent); }
-
-    .feature-card:nth-child(3):hover { border-color: var(--ctp-mauve); }
-    .feature-card:nth-child(3):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-mauve), transparent); }
-
-    .feature-card:nth-child(4):hover { border-color: var(--ctp-pink); }
-    .feature-card:nth-child(4):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-pink), transparent); }
-
-    .feature-card:nth-child(5):hover { border-color: var(--ctp-mauve); }
-    .feature-card:nth-child(5):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-mauve), transparent); }
-
-    .feature-card:nth-child(6):hover { border-color: var(--ctp-pink); }
-    .feature-card:nth-child(6):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-pink), transparent); }
-
-    .feature-card:nth-child(7):hover { border-color: var(--ctp-mauve); }
-    .feature-card:nth-child(7):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-mauve), transparent); }
-
-    .feature-card:nth-child(8):hover { border-color: var(--ctp-pink); }
-    .feature-card:nth-child(8):hover::before { background: linear-gradient(90deg, transparent, var(--ctp-pink), transparent); }
-
-    /* =========================================================
-       SCREENSHOT
-       ========================================================= */
-    .screenshot-section {
-      text-align: center;
-    }
-
-    .screenshot-frame {
-      border: 1px solid var(--ctp-surface1);
-      border-radius: 8px;
-      overflow: hidden;
-      background: var(--ctp-mantle);
-      box-shadow:
-        0 0 0 1px var(--ctp-surface0),
-        0 32px 80px -16px rgba(0, 0, 0, 0.5),
-        0 0 160px -60px rgba(203, 166, 247, 0.06);
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .screenshot-titlebar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      background: var(--ctp-crust);
-      border-bottom: 1px solid var(--ctp-surface0);
-    }
-
-    .screenshot-titlebar-text {
-      flex: 1;
-      text-align: center;
-      font-size: 12px;
-      color: var(--ctp-overlay0);
-    }
-
-    .screenshot-titlebar-text .url-text {
-      color: var(--ctp-green);
-    }
-
-    .screenshot-frame img {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-
-    .screenshot-caption {
-      margin-top: 20px;
-      font-size: 13px;
-      color: var(--ctp-overlay1);
-      font-style: italic;
-    }
-
-    /* =========================================================
-       ARCHITECTURE
-       ========================================================= */
-    .arch-terminal {
-      border: 1px solid var(--ctp-surface1);
-      border-radius: 8px;
-      overflow: hidden;
-      background: var(--ctp-mantle);
-      box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.4);
-    }
-
-    .arch-titlebar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      background: var(--ctp-crust);
-      border-bottom: 1px solid var(--ctp-surface0);
-    }
-
-    .arch-titlebar-text {
-      flex: 1;
-      text-align: center;
-      font-size: 12px;
-      color: var(--ctp-overlay0);
-    }
-
-    .arch-body {
-      padding: 32px;
-    }
-
-    .arch-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
-    }
-
-    .arch-item {
-      padding: 20px;
-      border: 1px solid var(--ctp-surface0);
-      border-radius: 4px;
-      background: var(--ctp-base);
-    }
-
-    .arch-item-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .arch-item-marker {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--ctp-crust);
-      background: var(--ctp-mauve);
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 3px;
-      flex-shrink: 0;
-    }
-
-    .arch-item:nth-child(2) .arch-item-marker { background: var(--ctp-pink); }
-    .arch-item:nth-child(3) .arch-item-marker { background: var(--ctp-mauve); }
-    .arch-item:nth-child(4) .arch-item-marker { background: var(--ctp-pink); }
-
-    .arch-item h3 {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--ctp-text);
-    }
-
-    .arch-item p {
-      font-size: 13px;
-      color: var(--ctp-subtext0);
-      line-height: 1.6;
-    }
-
-    .arch-item code {
-      font-size: 12px;
-      color: var(--ctp-mauve);
-      background: var(--ctp-surface0);
-      padding: 1px 6px;
-      border-radius: 3px;
-    }
-
-    .arch-divider {
-      border: none;
-      border-top: 1px dashed var(--ctp-surface1);
-      margin: 28px 0;
-    }
-
-    .arch-stack {
-      font-size: 13px;
-      color: var(--ctp-subtext0);
-      text-align: center;
-    }
-
-    .arch-stack span {
-      display: inline-block;
-      padding: 4px 14px;
-      border: 1px solid var(--ctp-surface1);
-      border-radius: 3px;
-      margin: 4px;
-      background: var(--ctp-base);
-      color: var(--ctp-subtext1);
-      font-size: 12px;
-    }
-
-    /* =========================================================
-       GETTING STARTED
-       ========================================================= */
-    .start-row {
-      display: flex;
-      gap: 40px;
-      align-items: flex-start;
-    }
-
-    .start-terminal {
-      border: 1px solid var(--ctp-surface1);
-      border-radius: 8px;
-      overflow: hidden;
-      background: var(--ctp-mantle);
-      box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.4);
-      flex: 1;
-      min-width: 0;
-    }
-
-    .start-titlebar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      background: var(--ctp-crust);
-      border-bottom: 1px solid var(--ctp-surface0);
-    }
-
-    .start-titlebar-text {
-      flex: 1;
-      text-align: center;
-      font-size: 12px;
-      color: var(--ctp-overlay0);
-    }
-
-    .start-body {
-      padding: 28px 32px;
-    }
-
-    .start-line {
-      margin-bottom: 4px;
-      font-size: 14px;
-      line-height: 1.8;
-    }
-
-    .start-line .prompt {
-      color: var(--ctp-green);
-      user-select: none;
-    }
-
-    .start-line .cmd {
-      color: var(--ctp-text);
-    }
-
-    .start-line .comment {
-      color: var(--ctp-overlay0);
-    }
-
-    .start-line .flag {
-      color: var(--ctp-peach);
-    }
-
-    .start-line .arg {
-      color: var(--ctp-yellow);
-    }
-
-    .start-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .start-info p {
-      font-size: 14px;
-      color: var(--ctp-subtext0);
-      margin-bottom: 12px;
-      line-height: 1.7;
-    }
-
-    .start-info code {
-      font-size: 13px;
-      color: var(--ctp-mauve);
-      background: var(--ctp-surface0);
-      padding: 2px 8px;
-      border-radius: 3px;
-      border: 1px solid var(--ctp-surface1);
-    }
-
-    /* =========================================================
-       FOOTER
-       ========================================================= */
-    .site-footer {
-      border-top: 1px solid var(--ctp-surface0);
-      padding: 48px 0;
-      text-align: center;
-      margin-top: 32px;
-    }
-
-    .footer-logomark {
-      display: block;
-      margin: 0 auto 20px;
-      opacity: 0.6;
-    }
-
-    .footer-tagline {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--ctp-subtext1);
-      margin-bottom: 24px;
-      letter-spacing: 0.02em;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 32px;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links a {
-      font-size: 13px;
-      color: var(--ctp-overlay1);
-      transition: color 0.2s;
-    }
-
-    .footer-links a:hover {
-      color: var(--ctp-mauve);
-    }
-
-    .footer-copy {
-      font-size: 12px;
-      color: var(--ctp-overlay0);
-    }
-
-    /* =========================================================
-       RESPONSIVE
-       ========================================================= */
-    @media (max-width: 900px) {
-      .features-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .arch-grid {
-        grid-template-columns: 1fr;
-      }
-      .hero-body {
-        padding: 36px 24px 44px;
-      }
-      .start-row {
-        flex-direction: column;
-        gap: 24px;
-      }
-    }
-
-    @media (max-width: 600px) {
-      body {
-        font-size: 14px;
-      }
-      .page-wrap {
-        padding: 0 16px;
-      }
-      .features-grid {
-        grid-template-columns: 1fr;
-      }
-      section {
-        margin-bottom: 64px;
-      }
-      .hero {
-        padding: 48px 0 32px;
-      }
-      .hero-body {
-        padding: 28px 20px 36px;
-      }
-      .hero-buttons {
-        flex-direction: column;
-        align-items: center;
-      }
-      .btn {
-        width: 100%;
-        max-width: 260px;
-        justify-content: center;
-      }
-      .arch-body {
-        padding: 20px;
-      }
-      .start-body {
-        padding: 20px;
-      }
-      .start-line {
-        font-size: 12px;
-      }
-      .feature-card {
-        padding: 22px 20px;
-      }
-    }
-
-    /* ---- Selection highlight ---- */
-    ::selection {
-      background: rgba(203, 166, 247, 0.25);
-      color: var(--ctp-text);
-    }
-
-    /* ---- Focus styles for accessibility ---- */
-    a:focus-visible,
-    .btn:focus-visible {
-      outline: 2px solid var(--ctp-mauve);
-      outline-offset: 2px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surge — Searchable Command Reference</title>
+    <meta name="description" content="Static web app that transforms markdown notes into a searchable, offline-first command reference. Fuzzy search, variable substitution, Catppuccin themes.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #f38ba8;
+            --maroon: #eba0ac;
+            --pink: #f5c2e7;
+            --mauve: #cba6f7;
+            --lavender: #b4befe;
+            --blue: #89b4fa;
+            --sapphire: #74c7ec;
+            --sky: #89dceb;
+            --teal: #94e2d5;
+            --green: #a6e3a1;
+            --yellow: #f9e2af;
+            --peach: #fab387;
+            --text: #cdd6f4;
+            --subtext1: #bac2de;
+            --subtext0: #a6adc8;
+            --overlay2: #9399b2;
+            --overlay1: #7f849c;
+            --overlay0: #6c7086;
+            --surface2: #585b70;
+            --surface1: #45475a;
+            --surface0: #313244;
+            --base: #1e1e2e;
+            --mantle: #181825;
+            --crust: #11111b;
+            --accent1: #cba6f7;
+            --accent2: #f5c2e7;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--base);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle, var(--overlay0) 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.4;
+        }
+
+        ::selection { background: rgba(203, 166, 247, 0.3); color: var(--text); }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--mantle);
+            padding: 2px 7px;
+            border-radius: 3px;
+            font-size: 0.88em;
+            color: var(--green);
+        }
+
+        .container { max-width: 1140px; margin: 0 auto; padding: 0 28px; }
+
+        .hero {
+            padding: 100px 0 70px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--surface1), transparent);
+        }
+
+        .hero-logo { max-width: 440px; margin: 0 auto 32px; }
+        .hero-logo img { width: 100%; height: auto; }
+
+        .hero .subtitle {
+            font-size: clamp(15px, 2vw, 18px);
+            color: var(--subtext0);
+            max-width: 680px;
+            margin: 0 auto 28px;
+            line-height: 1.7;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin: 48px 0;
+        }
+
+        .stat {
+            background: var(--surface0);
+            border: 1px solid var(--surface1);
+            border-radius: 8px;
+            padding: 20px 16px;
+            text-align: center;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .stat:hover { transform: translateY(-2px); border-color: var(--surface2); }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent1);
+            line-height: 1;
+        }
+
+        .stat-label { font-size: 12px; color: var(--overlay1); margin-top: 6px; letter-spacing: 0.03em; }
+
+        .cta-group { display: flex; gap: 14px; justify-content: center; margin-top: 36px; }
+
+        .btn {
+            padding: 13px 32px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            letter-spacing: 0.03em;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent1), var(--accent2));
+            color: var(--crust);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 24px rgba(203, 166, 247, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--surface0);
+            color: var(--text);
+            border: 1px solid var(--surface1);
+        }
+
+        .btn-secondary:hover { background: var(--surface1); border-color: var(--surface2); }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--subtext1);
+            border: 1px solid var(--surface1);
+        }
+
+        .btn-ghost:hover { background: var(--surface0); color: var(--text); }
+
+        section { padding: 72px 0; }
+
+        section h2 {
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        section .section-desc {
+            font-size: 15px;
+            color: var(--subtext0);
+            margin-bottom: 44px;
+            max-width: 640px;
+            line-height: 1.7;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .feature {
+            background: var(--surface0);
+            border: 1px solid var(--surface1);
+            border-radius: 8px;
+            padding: 28px;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+
+        .feature:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+            border-color: var(--surface2);
+        }
+
+        .feature:hover::before { opacity: 1; }
+
+        .feature h3 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--accent1);
+            margin-bottom: 10px;
+            letter-spacing: 0.02em;
+        }
+
+        .feature p { font-size: 13.5px; color: var(--subtext1); line-height: 1.65; }
+
+        .capabilities {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+            gap: 10px;
+        }
+
+        .capability {
+            background: var(--surface0);
+            border: 1px solid var(--surface1);
+            border-radius: 20px;
+            padding: 9px 18px;
+            font-size: 12.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .capability:hover { border-color: var(--surface2); background: var(--surface1); }
+
+        .cap-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .cap-dot.full { background: var(--green); }
+        .cap-dot.partial { background: var(--yellow); }
+
+        .arch-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .arch-card {
+            background: var(--surface0);
+            border: 1px solid var(--surface1);
+            border-radius: 8px;
+            padding: 28px;
+            transition: border-color 0.2s;
+        }
+
+        .arch-card:hover { border-color: var(--surface2); }
+
+        .arch-num {
+            display: inline-flex;
+            width: 30px; height: 30px;
+            background: linear-gradient(135deg, var(--accent1), var(--accent2));
+            color: var(--crust);
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 14px;
+        }
+
+        .arch-card h3 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--teal);
+            margin-bottom: 10px;
+        }
+
+        .arch-card p { font-size: 13.5px; color: var(--subtext1); line-height: 1.6; }
+
+        .terminal {
+            background: var(--mantle);
+            border: 1px solid var(--surface1);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .terminal-bar {
+            background: var(--crust);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--surface0);
+        }
+
+        .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .terminal-dot:nth-child(1) { background: var(--red); }
+        .terminal-dot:nth-child(2) { background: var(--yellow); }
+        .terminal-dot:nth-child(3) { background: var(--green); }
+        .terminal-label { flex: 1; text-align: center; font-size: 11px; color: var(--overlay0); font-family: 'JetBrains Mono', monospace; }
+
+        .terminal-body {
+            padding: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .terminal-body pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+        .terminal-body .p { color: var(--green); }
+        .terminal-body .c { color: var(--overlay0); }
+        .terminal-body .v { color: var(--accent1); }
+        .terminal-body .f { color: var(--peach); }
+        .terminal-body .cursor {
+            display: inline-block;
+            width: 8px; height: 15px;
+            background: var(--text);
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+
+        footer {
+            border-top: 1px solid var(--surface1);
+            padding: 48px 0;
+            margin-top: 80px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+        }
+
+        .footer-grid h4 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text);
+            margin-bottom: 14px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .footer-grid ul { list-style: none; }
+        .footer-grid li { margin-bottom: 8px; }
+        .footer-grid a { color: var(--overlay2); text-decoration: none; font-size: 13px; transition: color 0.2s; }
+        .footer-grid a:hover { color: var(--accent1); }
+
+        .footer-grid p { font-size: 13px; color: var(--overlay1); line-height: 1.7; }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 36px;
+            padding-top: 24px;
+            border-top: 1px solid var(--surface0);
+            font-size: 12px;
+            color: var(--overlay0);
+            letter-spacing: 0.02em;
+        }
+
+        @media (max-width: 960px) {
+            .stats { grid-template-columns: repeat(3, 1fr); }
+            .two-col, .arch-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 0 16px; }
+            .hero { padding: 60px 0 48px; }
+            section { padding: 48px 0; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+            .cta-group { flex-direction: column; align-items: center; }
+            .btn { width: 100%; max-width: 280px; text-align: center; }
+            .features { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+        }
+
+        a:focus-visible { outline: 2px solid var(--accent1); outline-offset: 2px; }
+    </style>
 </head>
 <body>
 
-<div class="page-wrap">
-
-  <!-- ============ HERO ============ -->
-  <section class="hero" id="top">
-    <div class="hero-terminal">
-      <div class="hero-titlebar">
-        <span class="hero-dot hero-dot--red"></span>
-        <span class="hero-dot hero-dot--yellow"></span>
-        <span class="hero-dot hero-dot--green"></span>
-        <span class="hero-titlebar-text">surge -- command reference</span>
-      </div>
-      <div class="hero-body">
-        <!-- Expanding Wave Front logomark -->
-        <svg class="hero-logomark" width="120" height="80" viewBox="0 0 200 120" aria-hidden="true">
-          <defs>
-            <linearGradient id="hero-arc" x1="0%" y1="50%" x2="100%" y2="50%">
-              <stop offset="0%" style="stop-color:#cba6f7"/>
-              <stop offset="100%" style="stop-color:#f5c2e7"/>
-            </linearGradient>
-          </defs>
-          <circle cx="40" cy="60" r="4" fill="#cba6f7"/>
-          <path d="M 60,28 A 40,40 0 0,1 60,92" fill="none" stroke="url(#hero-arc)" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
-          <path d="M 85,12 A 60,60 0 0,1 85,108" fill="none" stroke="url(#hero-arc)" stroke-width="2.2" stroke-linecap="round" opacity="0.5"/>
-          <path d="M 110,0 A 78,78 0 0,1 110,120" fill="none" stroke="url(#hero-arc)" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
-          <circle cx="125" cy="35" r="1.5" fill="#f5c2e7" opacity="0.9"/>
-          <circle cx="138" cy="55" r="1.5" fill="#f5c2e7" opacity="0.7"/>
-          <circle cx="132" cy="78" r="1.5" fill="#f5c2e7" opacity="0.8"/>
-          <circle cx="148" cy="45" r="1.5" fill="#f5c2e7" opacity="0.6"/>
-          <circle cx="145" cy="68" r="1.5" fill="#f5c2e7" opacity="0.5"/>
-          <circle cx="155" cy="58" r="1.5" fill="#f5c2e7" opacity="0.4"/>
-        </svg>
-
-        <h1 class="hero-title">Surge<span class="hero-cursor" aria-hidden="true"></span></h1>
-        <p class="hero-tagline">
-          Searchable <em>offline-first</em> command reference<br>
-          with fuzzy search and variable substitution
-        </p>
-        <div class="hero-buttons">
-          <a href="#getting-started" class="btn btn-primary">Get Started</a>
-          <a href="https://github.com/Real-Fruit-Snacks/Surge" class="btn btn-ghost">View on GitHub</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ FEATURES ============ -->
-  <section id="features">
-    <span class="section-label">// capabilities</span>
-    <h2 class="section-title">Your commands. Instantly searchable.</h2>
-    <p class="section-desc">
-      A lightweight reference tool that turns your markdown notes into a fast, searchable, offline-first command library with variable substitution.
-    </p>
-
-    <div class="features-grid">
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">&#9906;</span>
-        <h3>Fuzzy Search</h3>
-        <p>Real-time search across titles, categories, tags, and commands powered by Fuse.js. Results update as you type.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">$x</span>
-        <h3>Variable System</h3>
-        <p><code style="font-size:12px;color:var(--ctp-mauve);background:var(--ctp-surface0);padding:1px 5px;border-radius:3px;">&lt;TargetIP&gt;</code> syntax in code blocks. Define variables per workspace, and they substitute automatically when you copy.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">&#9635;</span>
-        <h3>4 Catppuccin Themes</h3>
-        <p>Mocha, Macchiato, Frappe, and Latte. Click the title to cycle through them. Your preference is saved in localStorage.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">&#9889;</span>
-        <h3>Offline Support</h3>
-        <p>Full functionality after first visit. Service worker caches everything locally. No CDN, no external dependencies.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">&#9998;</span>
-        <h3>Obsidian Compatible</h3>
-        <p>Standard markdown with YAML frontmatter, inline tags, and callout syntax. Edit notes in Obsidian, search them in Surge.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">&#9000;</span>
-        <h3>Keyboard Driven</h3>
-        <p>Arrow keys to navigate, Enter to expand, c to copy, w to wrap, v for variables, Esc to clear. Built for speed.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">&#9112;</span>
-        <h3>One-Click Copy</h3>
-        <p>Copy individual commands or entire procedures. Variables are replaced with your current workspace values automatically.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">&#9783;</span>
-        <h3>Smart Filtering</h3>
-        <p>Tag-based visibility toggles defined in config.js. Show or hide procedure categories. Filter state persists across sessions.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ SCREENSHOT ============ -->
-  <section class="screenshot-section" id="screenshot">
-    <span class="section-label">// in action</span>
-    <h2 class="section-title">Search. Expand. Copy. Done.</h2>
-    <p class="section-desc" style="margin-left:auto;margin-right:auto;">
-      Type to search. Arrow keys to navigate. Enter to expand. c to copy with variables substituted.
-    </p>
-
-    <div class="screenshot-frame">
-      <div class="screenshot-titlebar">
-        <span class="hero-dot hero-dot--red"></span>
-        <span class="hero-dot hero-dot--yellow"></span>
-        <span class="hero-dot hero-dot--green"></span>
-        <span class="screenshot-titlebar-text"><span class="url-text">http://localhost:8080</span> -- surge</span>
-      </div>
-      <img
-        src="Screenshot.png"
-        alt="Surge command reference interface showing fuzzy search results, expanded procedures with syntax-highlighted code blocks, and variable substitution panel"
-        loading="lazy"
-        width="1920"
-        height="1080"
-      >
-    </div>
-    <p class="screenshot-caption">Fuzzy search results with variable substitution, syntax highlighting, and keyboard navigation.</p>
-  </section>
-
-  <!-- ============ ARCHITECTURE ============ -->
-  <section id="architecture">
-    <span class="section-label">// architecture</span>
-    <h2 class="section-title">No build step. No framework. Just files.</h2>
-    <p class="section-desc">
-      A Python build script parses your markdown notes into a JSON index. A static HTML page searches it with Fuse.js. That's it.
-    </p>
-
-    <div class="arch-terminal">
-      <div class="arch-titlebar">
-        <span class="hero-dot hero-dot--red"></span>
-        <span class="hero-dot hero-dot--yellow"></span>
-        <span class="hero-dot hero-dot--green"></span>
-        <span class="arch-titlebar-text">system architecture</span>
-      </div>
-      <div class="arch-body">
-        <div class="arch-grid">
-          <div class="arch-item">
-            <div class="arch-item-header">
-              <span class="arch-item-marker">01</span>
-              <h3>Markdown Parser</h3>
+    <!-- ════════════════════ HERO ════════════════════ -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-logo">
+                <img src="https://raw.githubusercontent.com/Real-Fruit-Snacks/Surge/main/docs/assets/logo-dark.svg" alt="Surge">
             </div>
-            <p>
-              Python <code>build.py</code> recursively scans <code>/notes/</code> subdirectories, extracts procedures from <code>##</code> headers, steps from <code>###</code> headers, code blocks, tags, and variables into structured JSON.
-            </p>
-          </div>
 
-          <div class="arch-item">
-            <div class="arch-item-header">
-              <span class="arch-item-marker">02</span>
-              <h3>Static Frontend</h3>
+            <p class="subtitle">
+                Static web app that transforms markdown notes into a searchable, offline-first command reference.
+                Fuzzy search, variable substitution with workspaces, four Catppuccin themes, and full offline support.
+            </p>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">4</div>
+                    <div class="stat-label">Catppuccin Themes</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">&lt;50ms</div>
+                    <div class="stat-label">Search Speed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">14</div>
+                    <div class="stat-label">Features</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Runtime Deps</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">7</div>
+                    <div class="stat-label">Keyboard Shortcuts</div>
+                </div>
             </div>
-            <p>
-              Single <code>index.html</code> with vanilla JavaScript. No framework, no bundler, no transpilation. Fuse.js for search, Highlight.js for syntax coloring.
-            </p>
-          </div>
 
-          <div class="arch-item">
-            <div class="arch-item-header">
-              <span class="arch-item-marker">03</span>
-              <h3>Variable Engine</h3>
+            <div class="cta-group">
+                <a href="https://github.com/Real-Fruit-Snacks/Surge" class="btn btn-primary">View Source</a>
+                <a href="https://github.com/Real-Fruit-Snacks/Surge#quick-start" class="btn btn-secondary">Quick Start</a>
+                <a href="https://github.com/Real-Fruit-Snacks/Surge#reference-format" class="btn btn-ghost">Reference Format</a>
             </div>
-            <p>
-              Detects <code>&lt;variable&gt;</code> patterns in code blocks. Workspace system saves variable sets in localStorage. Values substitute on copy -- never modifies the source.
-            </p>
-          </div>
+        </div>
+    </section>
 
-          <div class="arch-item">
-            <div class="arch-item-header">
-              <span class="arch-item-marker">04</span>
-              <h3>Offline First</h3>
+    <!-- ════════════════════ FEATURES ════════════════════ -->
+    <section style="background: var(--mantle);">
+        <div class="container">
+            <h2>Features</h2>
+            <p class="section-desc">Everything you need for a searchable command reference. Write in markdown, search instantly, copy with variables filled in.</p>
+
+            <div class="features">
+                <div class="feature">
+                    <h3>Fuzzy Search</h3>
+                    <p>Real-time search across titles, categories, tags, notes, and commands powered by Fuse.js. Sub-50ms results across the entire index.</p>
+                </div>
+                <div class="feature">
+                    <h3>Variable System</h3>
+                    <p>Define <code>&lt;variables&gt;</code> in commands. Workspace support lets you save different variable sets per environment (Lab, Production, etc.).</p>
+                </div>
+                <div class="feature">
+                    <h3>Catppuccin Themes</h3>
+                    <p>Four flavors: Mocha (default), Macchiato, Frappe, Latte. Click title to cycle. All colors via CSS custom properties.</p>
+                </div>
+                <div class="feature">
+                    <h3>Offline PWA</h3>
+                    <p>Service worker caches everything after first visit. Full functionality without internet. All assets bundled locally.</p>
+                </div>
+                <div class="feature">
+                    <h3>Obsidian Compatible</h3>
+                    <p>Standard markdown with YAML frontmatter, inline tags, and callout syntax. Edit in Obsidian, view in Surge.</p>
+                </div>
+                <div class="feature">
+                    <h3>Keyboard Driven</h3>
+                    <p>Arrow keys, Enter to expand, <code>c</code> to copy, <code>v</code> for variables, <code>w</code> for wrap, Esc to clear. Power user friendly.</p>
+                </div>
+                <div class="feature">
+                    <h3>One-Click Copy</h3>
+                    <p>Copy individual commands or entire procedures. Variables automatically substituted with current values before copying.</p>
+                </div>
+                <div class="feature">
+                    <h3>Smart Filtering</h3>
+                    <p>Toggle procedure visibility by custom tags. Filter state persists across sessions. Configurable default visibility.</p>
+                </div>
+                <div class="feature">
+                    <h3>Syntax Highlighting</h3>
+                    <p>Bash, PowerShell, Python, and more via Highlight.js. Variables highlighted and substitutable in code blocks.</p>
+                </div>
             </div>
-            <p>
-              Service worker caches all assets on first visit. Works fully offline. Zero CDN dependencies. Everything ships in the <code>site/</code> folder.
-            </p>
-          </div>
         </div>
+    </section>
 
-        <hr class="arch-divider">
+    <!-- ════════════════════ CAPABILITIES ════════════════════ -->
+    <section>
+        <div class="container">
+            <h2>Capabilities</h2>
+            <p class="section-desc">Full-featured across all modern browsers. Offline-first with service worker caching.</p>
 
-        <div class="arch-stack">
-          <span>Python</span>
-          <span>Fuse.js</span>
-          <span>Highlight.js</span>
-          <span>Service Worker</span>
-          <span>Catppuccin</span>
-          <span>Vanilla JS</span>
+            <div class="capabilities">
+                <div class="capability"><span class="cap-dot full"></span>Fuzzy Search</div>
+                <div class="capability"><span class="cap-dot full"></span>Variable Subs</div>
+                <div class="capability"><span class="cap-dot full"></span>Workspaces</div>
+                <div class="capability"><span class="cap-dot full"></span>Copy + Replace</div>
+                <div class="capability"><span class="cap-dot full"></span>4 Themes</div>
+                <div class="capability"><span class="cap-dot full"></span>Keyboard Nav</div>
+                <div class="capability"><span class="cap-dot full"></span>Tag Filtering</div>
+                <div class="capability"><span class="cap-dot full"></span>Obsidian Sync</div>
+                <div class="capability"><span class="cap-dot full"></span>Syntax Highlight</div>
+                <div class="capability"><span class="cap-dot full"></span>Code Wrapping</div>
+                <div class="capability"><span class="cap-dot full"></span>History Panel</div>
+                <div class="capability"><span class="cap-dot full"></span>Analyzer Panel</div>
+                <div class="capability"><span class="cap-dot full"></span>Callouts</div>
+                <div class="capability"><span class="cap-dot full"></span>Zero Runtime Deps</div>
+                <div class="capability"><span class="cap-dot full"></span>Offline PWA</div>
+                <div class="capability"><span class="cap-dot partial"></span>Safari PWA</div>
+            </div>
+
+            <div style="margin-top: 20px; font-size: 12px; color: var(--overlay0); font-family: 'JetBrains Mono', monospace;">
+                <span style="color: var(--green);">&#9679;</span> Full &nbsp;&nbsp;
+                <span style="color: var(--yellow);">&#9679;</span> Limited
+            </div>
         </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============ GETTING STARTED ============ -->
-  <section id="getting-started">
-    <span class="section-label">// quickstart</span>
-    <h2 class="section-title">Running in 30 seconds</h2>
-    <p class="section-desc">
-      Clone, build, serve. No Docker, no npm, no configuration files.
-    </p>
+    <!-- ════════════════════ ARCHITECTURE ════════════════════ -->
+    <section style="background: var(--mantle);">
+        <div class="container">
+            <h2>Architecture</h2>
+            <p class="section-desc">Build-time markdown parser feeds a vanilla JavaScript single-page app. No framework, no bundler at runtime.</p>
 
-    <div class="start-row">
-      <div class="start-terminal">
-        <div class="start-titlebar">
-          <span class="hero-dot hero-dot--red"></span>
-          <span class="hero-dot hero-dot--yellow"></span>
-          <span class="hero-dot hero-dot--green"></span>
-          <span class="start-titlebar-text">bash</span>
+            <div class="arch-grid">
+                <div class="arch-card">
+                    <div class="arch-num">1</div>
+                    <h3>Build Script</h3>
+                    <p>Python parser (<code>build.py</code>) converts markdown notes into a searchable JSON index (<code>commands.json</code>). Standard library only — no pip dependencies.</p>
+                </div>
+                <div class="arch-card">
+                    <div class="arch-num">2</div>
+                    <h3>Search Engine</h3>
+                    <p>Fuse.js fuzzy matching across titles, categories, tags, notes, and commands. Real-time results with configurable threshold and scoring.</p>
+                </div>
+                <div class="arch-card">
+                    <div class="arch-num">3</div>
+                    <h3>Variable Engine</h3>
+                    <p><code>&lt;variable&gt;</code> detection and substitution. Workspace system saves variable sets per environment. Auto-substitution on copy.</p>
+                </div>
+                <div class="arch-card">
+                    <div class="arch-num">4</div>
+                    <h3>Service Worker</h3>
+                    <p>Static cache for complete offline support. All assets — HTML, JS, CSS, JSON index, vendor libraries — cached on first visit.</p>
+                </div>
+            </div>
         </div>
-        <div class="start-body">
-          <div class="start-line">
-            <span class="comment"># Clone the repository</span>
-          </div>
-          <div class="start-line">
-            <span class="prompt">$</span> <span class="cmd">git clone</span> <span class="arg">https://github.com/Real-Fruit-Snacks/Surge.git</span>
-          </div>
-          <div class="start-line" style="margin-bottom:16px;">
-            <span class="prompt">$</span> <span class="cmd">cd</span> <span class="arg">Surge</span>
-          </div>
-          <div class="start-line">
-            <span class="comment"># Build the search index</span>
-          </div>
-          <div class="start-line" style="margin-bottom:16px;">
-            <span class="prompt">$</span> <span class="cmd">python3</span> <span class="arg">build.py</span>
-          </div>
-          <div class="start-line">
-            <span class="comment"># Start local server</span>
-          </div>
-          <div class="start-line" style="margin-bottom:16px;">
-            <span class="prompt">$</span> <span class="cmd">python3</span> <span class="flag">-m</span> <span class="cmd">http.server</span> <span class="arg">8080</span> <span class="flag">--directory</span> <span class="arg">site</span>
-          </div>
-          <div class="start-line">
-            <span class="comment"># Or use any static server:</span>
-          </div>
-          <div class="start-line" style="margin-bottom:0;">
-            <span class="prompt">$</span> <span class="cmd">npx http-server</span> <span class="arg">site</span> <span class="flag">-p</span> <span class="arg">8080</span> <span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;# Node.js</span>
-          </div>
-          <div class="start-line" style="margin-bottom:0;">
-            <span class="prompt">$</span> <span class="cmd">php</span> <span class="flag">-S</span> <span class="arg">localhost:8080</span> <span class="flag">-t</span> <span class="arg">site</span> <span class="comment">&nbsp;&nbsp;# PHP</span>
-          </div>
+    </section>
+
+    <!-- ════════════════════ GETTING STARTED ════════════════════ -->
+    <section>
+        <div class="container">
+            <h2>Getting Started</h2>
+            <p class="section-desc">Build the search index and serve. No Node.js required — just Python and a browser.</p>
+
+            <div class="two-col">
+                <div class="terminal">
+                    <div class="terminal-bar">
+                        <span class="terminal-dot"></span>
+                        <span class="terminal-dot"></span>
+                        <span class="terminal-dot"></span>
+                        <span class="terminal-label">build.sh</span>
+                    </div>
+                    <div class="terminal-body">
+                        <pre><span class="c"># Clone and build</span>
+<span class="p">$</span> git clone https://github.com/Real-Fruit-Snacks/Surge.git
+<span class="p">$</span> cd Surge
+
+<span class="c"># Build search index</span>
+<span class="p">$</span> python3 build.py
+<span class="v">Generated commands.json (142 procedures)</span>
+
+<span class="c"># Start local server</span>
+<span class="p">$</span> python3 -m http.server 8080 --directory site
+<span class="v">Serving at http://localhost:8080</span><span class="cursor"></span></pre>
+                    </div>
+                </div>
+
+                <div class="terminal">
+                    <div class="terminal-bar">
+                        <span class="terminal-dot"></span>
+                        <span class="terminal-dot"></span>
+                        <span class="terminal-dot"></span>
+                        <span class="terminal-label">shortcuts</span>
+                    </div>
+                    <div class="terminal-body">
+                        <pre><span class="c"># Keyboard shortcuts</span>
+<span class="v">Arrow keys</span>   <span class="c">Navigate procedures</span>
+<span class="v">Enter</span>        <span class="c">Expand procedure</span>
+<span class="v">c</span>            <span class="c">Copy command</span>
+<span class="v">v</span>            <span class="c">Open variables panel</span>
+<span class="v">w</span>            <span class="c">Toggle code wrapping</span>
+<span class="v">Escape</span>       <span class="c">Clear search</span>
+
+<span class="c"># Variable substitution</span>
+ssh <span class="v">&lt;user&gt;</span>@<span class="v">&lt;host&gt;</span> -p <span class="v">&lt;port&gt;</span>
+<span class="c"># → copies as:</span>
+ssh <span class="f">admin</span>@<span class="f">10.10.10.5</span> -p <span class="f">22</span></pre>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
+    </section>
 
-      <div class="start-info">
-      <p>
-        Open <code>http://localhost:8080</code> in your browser. Your markdown notes from <code>/notes/</code> are now searchable. Press <code>v</code> to open the variable panel, define your targets, and start copying commands with values pre-filled.
-      </p>
-      <p>
-        Add your own notes to <code>/notes/&lt;category&gt;/</code> using standard markdown with <code>##</code> headers for procedures and <code>###</code> headers for steps. Run <code>build.py</code> again to rebuild the index.
-      </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ FOOTER ============ -->
-  <footer class="site-footer">
-    <!-- Expanding Wave Front logomark -->
-    <svg class="footer-logomark" width="48" height="32" viewBox="0 0 200 120" aria-hidden="true">
-      <defs>
-        <linearGradient id="footer-arc" x1="0%" y1="50%" x2="100%" y2="50%">
-          <stop offset="0%" style="stop-color:#cba6f7"/>
-          <stop offset="100%" style="stop-color:#f5c2e7"/>
-        </linearGradient>
-      </defs>
-      <circle cx="40" cy="60" r="4" fill="#cba6f7"/>
-      <path d="M 60,28 A 40,40 0 0,1 60,92" fill="none" stroke="url(#footer-arc)" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
-      <path d="M 85,12 A 60,60 0 0,1 85,108" fill="none" stroke="url(#footer-arc)" stroke-width="2.2" stroke-linecap="round" opacity="0.5"/>
-      <path d="M 110,0 A 78,78 0 0,1 110,120" fill="none" stroke="url(#footer-arc)" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
-      <circle cx="125" cy="35" r="1.5" fill="#f5c2e7" opacity="0.9"/>
-      <circle cx="138" cy="55" r="1.5" fill="#f5c2e7" opacity="0.7"/>
-      <circle cx="132" cy="78" r="1.5" fill="#f5c2e7" opacity="0.8"/>
-    </svg>
-    <p class="footer-tagline">Searchable command reference.</p>
-    <nav class="footer-links" aria-label="Footer links">
-      <a href="https://github.com/Real-Fruit-Snacks/Surge">GitHub</a>
-      <a href="https://github.com/Real-Fruit-Snacks/Surge/blob/main/LICENSE">License (MIT)</a>
-      <a href="https://github.com/Real-Fruit-Snacks/Surge/issues">Report Issue</a>
-      <a href="https://github.com/Real-Fruit-Snacks/Surge/blob/main/CONTRIBUTING.md">Contributing</a>
-    </nav>
-    <p class="footer-copy">Surge -- offline-first command reference</p>
-  </footer>
-
-</div>
+    <!-- ════════════════════ FOOTER ════════════════════ -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <h4>Documentation</h4>
+                    <ul>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Surge#quick-start">Quick Start</a></li>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Surge#features">Features</a></li>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Surge#architecture">Architecture</a></li>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Surge#reference-format">Reference Format</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Surge/issues">Report Issue</a></li>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Surge/blob/main/CONTRIBUTING.md">Contributing</a></li>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Surge/blob/main/CHANGELOG.md">Changelog</a></li>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Surge/blob/main/SECURITY.md">Security</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Toolkit</h4>
+                    <ul>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Fathom">Fathom</a></li>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Flux">Flux</a></li>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Ripple">Ripple</a></li>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Sunken-Archive">Sunken-Archive</a></li>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Tidemark">Tidemark</a></li>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Tidepool">Tidepool</a></li>
+                        <li><a href="https://github.com/Real-Fruit-Snacks/Riptide">Riptide</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>License</h4>
+                    <p>MIT License<br>Copyright &copy; 2026 Real-Fruit-Snacks<br><br>Built with Fuse.js + Highlight.js</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                Part of the Real-Fruit-Snacks toolkit &nbsp;&middot;&nbsp; Searchable command reference.
+            </div>
+        </div>
+    </footer>
 
 </body>
 </html>
