@@ -10,12 +10,16 @@
   <line x1="200" y1="140" x2="200" y2="200" stroke="#313244" stroke-width="1"/>
   <line x1="400" y1="140" x2="400" y2="200" stroke="#313244" stroke-width="1"/>
   <line x1="600" y1="140" x2="600" y2="200" stroke="#313244" stroke-width="1"/>
-  <text x="20" y="158" font-family="'JetBrains Mono', 'SF Mono', monospace" font-size="9" font-weight="600" fill="#6c7086" letter-spacing="2">SEARCH</text>
-  <text x="20" y="186" font-family="'Inter', sans-serif" font-size="22" font-weight="700" fill="#cdd6f4" letter-spacing="-1">FUSE.JS<tspan fill="#fab387" font-size="14"> · SUB-50 MS</tspan></text>
-  <text x="220" y="158" font-family="'JetBrains Mono', 'SF Mono', monospace" font-size="9" font-weight="600" fill="#6c7086" letter-spacing="2">THEMES</text>
-  <text x="220" y="186" font-family="'Inter', sans-serif" font-size="22" font-weight="700" fill="#cdd6f4" letter-spacing="-1">4<tspan fill="#fab387" font-size="14"> × CATPPUCCIN</tspan></text>
-  <text x="420" y="158" font-family="'JetBrains Mono', 'SF Mono', monospace" font-size="9" font-weight="600" fill="#6c7086" letter-spacing="2">VARIABLES</text>
-  <text x="420" y="186" font-family="'Inter', sans-serif" font-size="22" font-weight="700" fill="#cdd6f4" letter-spacing="-1">WORKSPACES<tspan fill="#fab387" font-size="14"> · LIVE</tspan></text>
-  <text x="620" y="158" font-family="'JetBrains Mono', 'SF Mono', monospace" font-size="9" font-weight="600" fill="#6c7086" letter-spacing="2">STACK</text>
-  <text x="620" y="186" font-family="'Inter', sans-serif" font-size="22" font-weight="700" fill="#cdd6f4" letter-spacing="-1">PYTHON<tspan fill="#fab387" font-size="14"> · STATIC</tspan></text>
+  <text x="20" y="158" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10" font-weight="600" fill="#6c7086" letter-spacing="1">SEARCH</text>
+  <text x="20" y="175" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif" font-size="16" font-weight="700" fill="#fab387" letter-spacing="0">FUSE.JS</text>
+  <text x="20" y="190" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" fill="#585b70" letter-spacing="0">FUZZY · 50MS · CLIENT-SIDE</text>
+  <text x="220" y="158" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10" font-weight="600" fill="#6c7086" letter-spacing="1">THEMES</text>
+  <text x="220" y="175" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif" font-size="16" font-weight="700" fill="#fab387" letter-spacing="0">4 CATPPUCCIN</text>
+  <text x="220" y="190" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" fill="#585b70" letter-spacing="0">MOCHA · MACCHIATO · LATTE</text>
+  <text x="420" y="158" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10" font-weight="600" fill="#6c7086" letter-spacing="1">VARIABLES</text>
+  <text x="420" y="175" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif" font-size="16" font-weight="700" fill="#fab387" letter-spacing="0">MULTI · LIVE</text>
+  <text x="420" y="190" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" fill="#585b70" letter-spacing="0">SUBSTITUTION · COPY-READY</text>
+  <text x="620" y="158" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10" font-weight="600" fill="#6c7086" letter-spacing="1">STACK</text>
+  <text x="620" y="175" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif" font-size="16" font-weight="700" fill="#fab387" letter-spacing="0">PYTHON · STATIC</text>
+  <text x="620" y="190" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" fill="#585b70" letter-spacing="0">BUILD STEP · OFFLINE PWA</text>
 </svg>
